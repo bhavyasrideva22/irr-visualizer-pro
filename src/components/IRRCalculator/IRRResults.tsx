@@ -60,28 +60,31 @@ const IRRResults: React.FC<IRRResultsProps> = ({
   };
 
   // Generate data for the chart
-  // Fixed: Create the initial data point first, then build the rest of the array
-  const initialDataPoint = {
-    year: 0,
-    value: -initialInvestment,
-    cumulativeValue: -initialInvestment,
+  const generateChartData = () => {
+    const result = [];
+    
+    // Initial data point
+    result.push({
+      year: 0,
+      value: -initialInvestment,
+      cumulativeValue: -initialInvestment,
+    });
+    
+    // Calculate cumulative values separately
+    let cumulativeValue = -initialInvestment;
+    
+    // Add cash flow data points
+    for (let i = 0; i < cashFlows.length; i++) {
+      cumulativeValue += cashFlows[i];
+      result.push({
+        year: i + 1,
+        value: cashFlows[i],
+        cumulativeValue: cumulativeValue,
+      });
+    }
+    
+    return result;
   };
-  
-  const chartData = [
-    initialDataPoint,
-    ...cashFlows.map((cf, index) => {
-      // Use the previous data point to calculate cumulative value
-      const prevCumulative = index === 0 
-        ? initialDataPoint.cumulativeValue 
-        : chartData[index].cumulativeValue;
-        
-      return {
-        year: index + 1,
-        value: cf,
-        cumulativeValue: prevCumulative + cf,
-      };
-    }),
-  ];
 
   if (irr === null) {
     return null;
@@ -89,6 +92,7 @@ const IRRResults: React.FC<IRRResultsProps> = ({
 
   const irrInterpretation = getIRRInterpretation(irr);
   const xirrInterpretation = xirr ? getIRRInterpretation(xirr) : null;
+  const chartData = generateChartData();
 
   return (
     <div className="space-y-6 animate-fade">
