@@ -59,8 +59,12 @@ export const generatePDF = (data: IRRData): void => {
     ["Net Profit", formatCurrency(data.netProfit)],
   ];
   
+  // Track table end positions
+  let yPos = 45;
+  
+  // Main results table
   autoTable(doc, {
-    startY: 45,
+    startY: yPos,
     head: [["Metric", "Value"]],
     body: mainTableData,
     theme: "grid",
@@ -75,17 +79,21 @@ export const generatePDF = (data: IRRData): void => {
     margin: { left: 15, right: 15 },
   });
   
+  // Get the last table end position
+  yPos = (doc as any).lastAutoTable.finalY + 15;
+  
   // Add cash flows table
   doc.setFontSize(16);
-  doc.text("Cash Flow Details", 15, doc.lastAutoTable.finalY + 15);
+  doc.text("Cash Flow Details", 15, yPos);
   
   const cashFlowsTableData = data.cashFlows.map((cf, index) => [
     `Year ${index + 1}`,
     formatCurrency(cf),
   ]);
   
+  // Cash flow table
   autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 20,
+    startY: yPos + 5,
     head: [["Period", "Cash Flow"]],
     body: cashFlowsTableData,
     theme: "grid",
@@ -100,9 +108,12 @@ export const generatePDF = (data: IRRData): void => {
     margin: { left: 15, right: 15 },
   });
   
+  // Update position for interpretation section
+  yPos = (doc as any).lastAutoTable.finalY + 15;
+  
   // Add interpretation section
   doc.setFontSize(16);
-  doc.text("Interpretation", 15, doc.lastAutoTable.finalY + 15);
+  doc.text("Interpretation", 15, yPos);
   
   let interpretation = "";
   const irrPercentage = data.irr * 100;
@@ -118,7 +129,7 @@ export const generatePDF = (data: IRRData): void => {
   }
   
   doc.setFontSize(12);
-  doc.text(interpretation, 15, doc.lastAutoTable.finalY + 25, {
+  doc.text(interpretation, 15, yPos + 10, {
     maxWidth: 180,
     align: "justify",
   });

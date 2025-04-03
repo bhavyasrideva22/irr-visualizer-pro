@@ -60,14 +60,21 @@ const IRRResults: React.FC<IRRResultsProps> = ({
   };
 
   // Generate data for the chart
+  // Fixed: Create the initial data point first, then build the rest of the array
+  const initialDataPoint = {
+    year: 0,
+    value: -initialInvestment,
+    cumulativeValue: -initialInvestment,
+  };
+  
   const chartData = [
-    {
-      year: 0,
-      value: -initialInvestment,
-      cumulativeValue: -initialInvestment,
-    },
+    initialDataPoint,
     ...cashFlows.map((cf, index) => {
-      const prevCumulative = index === 0 ? -initialInvestment : chartData[index].cumulativeValue;
+      // Use the previous data point to calculate cumulative value
+      const prevCumulative = index === 0 
+        ? initialDataPoint.cumulativeValue 
+        : chartData[index].cumulativeValue;
+        
       return {
         year: index + 1,
         value: cf,
